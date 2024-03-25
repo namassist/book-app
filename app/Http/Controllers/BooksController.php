@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Validation\Validator;
 use App\Models\Book;
 
 class BooksController extends Controller
