@@ -1,8 +1,7 @@
 <?php
 
-namespace Tests\App\Exceptions;
+namespace Tests;
 
-use Tests\TestCase;
 use \Mockery as m;
 use App\Exceptions\Handler;
 use Illuminate\Http\Request;
@@ -23,6 +22,7 @@ class HandlerTest extends TestCase
         // Mock the interaction with the Request
         $request = m::mock(Request::class);
         $request->shouldReceive('wantsJson')->andReturn(false);
+        $request->shouldReceive('expectsJson')->andReturn(false);
 
         // Mock the interaction with the exception
         $exception = m::mock(\Exception::class, ['Error!']);
@@ -60,9 +60,9 @@ class HandlerTest extends TestCase
         $data = $result->getData();
 
         $this->assertInstanceOf(JsonResponse::class, $result);
-        $this->assertObjectHasAttribute('error', $data);
-        $this->assertAttributeEquals('Doh!', 'message', $data->error);
-        $this->assertAttributeEquals(400, 'status', $data->error);
+        $this->assertObjectHasProperty('error', $data);
+        $this->assertEquals('Doh!', $data->error->message);
+        $this->assertEquals(400, $data->error->status);
     }
 
     /** @test */

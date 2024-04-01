@@ -3,8 +3,10 @@
 namespace Tests;
 
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 
-class TestCase extends Laravel\Lumen\Testing\TestCase
+
+abstract class TestCase extends BaseTestCase
 {
     use MockeryPHPUnitIntegration;
 
@@ -45,7 +47,7 @@ class TestCase extends Laravel\Lumen\Testing\TestCase
     {
         $this
             ->seeHasHeader($header)
-            ->assertRegExp(
+            ->assertDoesNotMatchRegularExpression(
                 $regexp,
                 $this->response->headers->get($header)
             );

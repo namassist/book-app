@@ -1,10 +1,9 @@
 <?php
 
-namespace Tests\App\Http\Controllers;
-
-use Tests\TestCase;
+namespace Tests;
 
 use Laravel\Lumen\Testing\DatabaseMigrations;
+use App\Models\Book;
 
 class BooksControllerTest extends TestCase
 {
@@ -19,7 +18,7 @@ class BooksControllerTest extends TestCase
     /** @test **/
     public function index_should_return_a_collection_of_records()
     {
-        $books = factory('App\Models\Book', 2)->create();
+        $books = Book::factory(2)->create();
 
         $this->get('/books');
 
@@ -32,7 +31,7 @@ class BooksControllerTest extends TestCase
     /** @test **/
     public function show_should_return_a_valid_book()
     {
-        $book = factory('App\Models\Book')->create();
+        $book = Book::factory()->create();
         $this
             ->get("/books/{$book->id}")
             ->seeStatusCode(200)
@@ -65,7 +64,7 @@ class BooksControllerTest extends TestCase
     {
         $this->get('/books/this-is-invalid');
 
-        $this->assertNotRegExp(
+        $this->assertDoesNotMatchRegularExpression(
             '/Book not found/',
             $this->response->getContent(),
             'BooksController@show route matching when it should not.'
@@ -97,14 +96,13 @@ class BooksControllerTest extends TestCase
 
         $this
             ->seeStatusCode(201)
-            ->seeHeaderWithRegExp('Location', '#/books/[\d]+$#');
-
+            ->seeHeaderWithRegExp('Location', '#^http://localhost:8000/books/\d+$#');
     }
 
     /** @test **/
     public function update_should_only_change_fillable_fields()
     {
-        $book = factory('App\Models\Book')->create([
+        $book = Book::factory()->create([
             'title' => 'War of the Worlds',
             'description' => 'A science fiction masterpiece about Martians invading London',
             'author' => 'H. G. Wells',
@@ -153,7 +151,7 @@ class BooksControllerTest extends TestCase
     /** @test **/
     public function destroy_should_remove_a_valid_book()
     {
-        $book = factory('App\Models\Book')->create();
+        $book = Book::factory()->create();
         $this
             ->delete("/books/{$book->id}")
            ->seeStatusCode(204)
