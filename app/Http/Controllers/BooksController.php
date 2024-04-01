@@ -2,67 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Book;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class BooksController extends Controller
+/**
+ * Class BooksController
+ * @package App\Http\Controllers
+ */
+class BooksController
 {
     /**
      * GET /books
      * @return array
-    */
+     */
     public function index()
     {
-        $books = Book::all();
-        return response()->json($books);
+        return Book::all();
     }
 
-    public function store(Request $request)
-    {
-        try {
-            $this->validate($request,[
-                'title' => 'required|string|max:10',
-                'description' => 'required|string',
-                'author' => 'required|string|max:10',
-            ]);
-            $books = new Book();
-        } catch (\Exception $e) {
-            dd(get_class($e));
-        }
-
-        $books->title = $request->input('title');
-        $books->author = $request->input('author');
-        $books->description = $request->input('description');
-
-        $books->save();
-        return response()->json($books, 201);
-    }
-
+    /**
+     * GET /books/{id}
+     * @param integer $id
+     * @return mixed
+     */
     public function show($id)
     {
-        try {
-            $books = Book::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => [
-                    'message' => 'Book not found'
-                ]
-            ], 404);
-        }
-        return $books;
+        return Book::findOrFail($id);
     }
 
+    /**
+     * POST /books
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function store(Request $request)
+    {
+        $book = Book::create($request->all());
+
+        return response()->json(['created' => true], 201, [
+            'Location' => route('books.show', ['id' => $book->id])
+        ]);
+    }
+
+    /**
+     * PUT /books/{id}
+     * @param Request $request
+     * @param $id
+     * @return mixed
+     */
     public function update(Request $request, $id)
     {
         try {
-            $this->validate($request,[
-                'title' => 'required|string|max:100',
-                'author' => 'required|string|max:100',
-                'description' => 'required|string',
-            ]);
-
-            $books = Book::findOrFail($id);
+            $book = Book::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => [
@@ -71,19 +63,21 @@ class BooksController extends Controller
             ], 404);
         }
 
-        $books->title = $request->input('title');
-        $books->author = $request->input('author');
-        $books->description = $request->input('description');
+        $book->fill($request->all());
+        $book->save();
 
-        $books->save();
-        return $books;
+        return $book;
     }
 
+    /**
+     * DELETE /books/{id}
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($id)
     {
         try {
-            $books = Book::findOrFail($id);
-
+            $book = Book::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => [
@@ -92,8 +86,8 @@ class BooksController extends Controller
             ], 404);
         }
 
-        $books->delete();
-        return response()->json(null, 204);
-    }
+        $book->delete();
 
+        return response(null, 204);
+    }
 }
