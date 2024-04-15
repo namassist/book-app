@@ -13,7 +13,7 @@
         <env name="APP_ENV" value="testing"/>
         <env name="CACHE_DRIVER" value="array"/>
         <!-- Test Database -->
-        <env name="DB_DATABASE" value="book-app-testing"/>
+        <env name="DB_DATABASE" value="book_testing"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
     </php>
 </phpunit>
