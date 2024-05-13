@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
-class Book extends Model {
+class Author extends Model {
     use HasFactory;
 
-    /**
+     /**
      * The attributes that are mass assignable
      *
      * @var array
      */
-    protected $fillable = ['title', 'description', 'author_id'];
-    public function author()
+    protected $fillable = ['name', 'biography', 'gender'];
+    public function books()
     {
-        return $this->belongsTo(Author::class);
+        return $this->hasMany(Book::class);
     }
 }

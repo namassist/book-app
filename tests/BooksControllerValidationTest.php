@@ -21,20 +21,18 @@ class BooksControllerValidationTest extends TestCase
 
         $this->assertArrayHasKey('title', $body);
         $this->assertArrayHasKey('description', $body);
-        $this->assertArrayHasKey('author', $body);
 
         $this->assertEquals(["The title field is required."], $body['title']);
         $this->assertEquals(
             ["Please provide a description."],
             $body['description']
         );
-        $this->assertEquals(["The author field is required."], $body['author']);
     }
 
     /** @test **/
-    public function it_validates_validates_passed_fields_when_updating_a_book()
+    public function it_validates_required_fields_when_updating_a_book()
     {
-        $book = Book::factory()->create();
+        $book = $this->bookFactory();
 
         $this->put("/books/{$book->id}", [], ['Accept' => 'application/json']);
 
@@ -44,69 +42,63 @@ class BooksControllerValidationTest extends TestCase
 
         $this->assertArrayHasKey('title', $body);
         $this->assertArrayHasKey('description', $body);
-        $this->assertArrayHasKey('author', $body);
 
         $this->assertEquals(["The title field is required."], $body['title']);
-        $this->assertEquals(
-            ["Please provide a description."],
-            $body['description']
-        );
-        $this->assertEquals(["The author field is required."], $body['author']);
+        $this->assertEquals(["Please provide a description."], $body['description']);
     }
 
-     /** @test **/
-     public function title_fails_create_validation_when_just_too_long()
-     {
-     // Creating a book
-     $book = Book::factory()->make();
-     $book->title = str_repeat('a', 256);
+    /** @test **/
+    public function title_fails_create_validation_when_just_too_long()
+    {
+        // Creating a book
+        $book = $this->bookFactory();
+        $book->title = str_repeat('a', 256);
 
-     $this->post("/books", [
-         'title' => $book->title,
-         'description' => $book->description,
-         'author' => $book->author,
-     ], ['Accept' => 'application/json']);
+        $this->post("/books", [
+            'title' => $book->title,
+            'description' => $book->description,
+            'author_id' => $book->author->id,
+        ], ['Accept' => 'application/json']);
 
-     $this
-         ->seeStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-         ->seeJson([
-             'title' => ["The title must not be greater than 255 characters."]
-         ])
-         ->notSeeInDatabase('books', ['title' => $book->title]);
-     }
+        $this->seeStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+             ->seeJson([
+                'title' => ["The title must not be greater than 255 characters."]
+                ])
+            ->notSeeInDatabase('books', ['title' => $book->title]);
+    }
 
-     /** @test **/
-     public function title_fails_update_validation_when_just_too_long()
-     {
-     // Updating a book
-     $book = Book::factory()->create();
-     $book->title = str_repeat('a', 256);
+    /** @test **/
+    public function title_fails_update_validation_when_just_too_long()
+    {
+        // Updating a book
+        $book = $this->bookFactory();
+        $book->title = str_repeat('a', 256);
 
-     $this->put("/books/{$book->id}", [
-         'title' => $book->title,
-         'description' => $book->description,
-         'author' => $book->author
-     ], ['Accept' => 'application/json']);
+        $this->put("/books/{$book->id}", [
+            'title' => $book->title,
+            'description' => $book->description,
+            'author' => $book->author
+        ], ['Accept' => 'application/json']);
 
-     $this
-         ->seeStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-         ->seeJson([
-             'title' => ["The title must not be greater than 255 characters."]
-         ])
-         ->notSeeInDatabase('books', ['title' => $book->title]);
-     }
+        $this
+            ->seeStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->seeJson([
+                'title' => ["The title must not be greater than 255 characters."]
+            ])
+            ->notSeeInDatabase('books', ['title' => $book->title]);
+    }
 
      /** @test **/
      public function title_passes_create_validation_when_exactly_max()
      {
          // Creating a new Book
-         $book = Book::factory()->make();
+         $book = $this->bookFactory();
          $book->title = str_repeat('a', 255);
 
          $this->post("/books", [
              'title' => $book->title,
              'description' => $book->description,
-             'author' => $book->author,
+             'author_id' => $book->author->id,
          ], ['Accept' => 'application/json']);
 
          $this
@@ -118,13 +110,13 @@ class BooksControllerValidationTest extends TestCase
      public function title_passes_update_validation_when_exactly_max()
      {
          // Updating a book
-         $book = Book::factory()->create();
+         $book = $this->bookFactory();
          $book->title = str_repeat('a', 255);
 
          $this->put("/books/{$book->id}", [
              'title' => $book->title,
              'description' => $book->description,
-             'author' => $book->author
+             'author_id' => $book->author->id,
          ], ['Accept' => 'application/json']);
 
          $this

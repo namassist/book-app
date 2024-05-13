@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Book;
 use App\Models\Author;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class BookFactory extends Factory
+class AuthorFactory extends Factory
 {
     /**
      * Define the model for the factory.
@@ -15,7 +14,7 @@ class BookFactory extends Factory
      */
     public function model()
     {
-        return Book::class;
+        return Author::class;
     }
 
     /**
@@ -26,8 +25,9 @@ class BookFactory extends Factory
     public function definition()
     {
         return [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
+            'name' => $this->faker->name,
+            'biography' => join(" ", $this->faker->sentences(rand(3, 5))),
+            'gender' => rand(1, 6) % 2 === 0 ? 'male' : 'female',
         ];
     }
 }

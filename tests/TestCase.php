@@ -4,7 +4,8 @@ namespace Tests;
 
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
-
+use App\Models\Book;
+use App\Models\Author;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -53,5 +54,22 @@ abstract class TestCase extends BaseTestCase
             );
 
         return $this;
+    }
+
+    /**
+     * Convenience method for creating a book with an author
+     *
+     * @param int $count
+     * @return mixed
+     */
+    protected function bookFactory($count = 1)
+    {
+        $author = Author::factory()->create();
+
+        $books = Book::factory()->count($count)->create([
+            'author_id' => $author->id,
+        ]);
+
+        return $count === 1 ? $books->first() : $books;
     }
 }
